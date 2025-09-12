@@ -1,0 +1,10 @@
+<!doctype html>
+<title>Register Student</title>
+<h2>Register Student</h2>
+<form method="post" action="{{ url_for('admin.admin_register') }}" enctype="multipart/form-data">
+  <label>Name: <input name="name" required></label><br>
+  <label>Roll: <input name="roll" required></label><br>
+  <label>Face Image: <input type="file" name="image" accept="image/*" required></label><br>
+  <input type="submit" value="Register">
+</form>
+<p><a href="{{ url_for('admin.admin_dashboard') }}">Back</a></p>

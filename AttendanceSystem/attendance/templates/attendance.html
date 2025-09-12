@@ -1,0 +1,15 @@
+<!doctype html>
+<title>Attendance Records</title>
+<h2 style="padding-right:100%;">Attendance</h2>
+<form method="get">
+  Filter date (YYYY-mm-dd): <input name="date" value="{{ req_date }}"> 
+  <input type="submit" value="Filter">
+</form>
+<p><a href="{{ url_for('admin.export_csv', date=req_date) }}">Export CSV</a></p>
+<table border=1 cellpadding=6>
+<tr><th>ID</th><th>Name</th><th>Roll</th><th>Timestamp</th></tr>
+{% for a in records %}
+<tr><td>{{ a[0] }}</td><td>{{ a[1] }}</td><td>{{ a[2] }}</td><td>{{ a[3] }}</td></tr>
+{% endfor %}
+</table>
+<p><a href="{{ url_for('admin.admin_dashboard') }}">Back</a></p>

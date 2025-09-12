@@ -1,0 +1,8 @@
+<!doctype html>
+<title>Admin Login</title>
+<h2>Admin Login</h2>
+<form method="post" action="{{ url_for('admin.admin_login') }}">
+  <label>Username: <input name="username"></label><br>
+  <label>Password: <input type="password" name="password"></label><br>
+  <input type="submit" value="Login">
+</form>

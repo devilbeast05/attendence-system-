@@ -1,0 +1,10 @@
+<!doctype html>
+<title>Students</title>
+<h2>Registered Students</h2>
+<table border=1 cellpadding=6>
+<tr><th>ID</th><th>Name</th><th>Roll</th></tr>
+{% for s in students %}
+<tr><td>{{ s[0] }}</td><td>{{ s[1] }}</td><td>{{ s[2] }}</td></tr>
+{% endfor %}
+</table>
+<p><a href="{{ url_for('admin.admin_dashboard') }}">Back</a></p>

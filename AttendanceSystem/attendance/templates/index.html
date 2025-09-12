@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Face Attendance - Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>body{font-family:Arial;padding:10px;max-width:720px;margin:auto}button{padding:10px 16px}</style>
+</head>
+<body>
+  <h2>Attendance - Face Scan</h2>
+  <video id="video" width="640" height="480" autoplay muted></video>
+  <div>
+    <button id="snap">Capture & Mark Attendance</button>
+    <button id="toggleCam">Turn Off Camera</button>
+  </div>
+  <p id="status"></p>
+  <script>
+    let streaming = false;
+    const video = document.getElementById('video');
+    const status = document.getElementById('status');
+    const snap = document.getElementById('snap');
+    const toggleCam = document.getElementById('toggleCam');
+    let streamRef;
+
+    async function startCam(){
+      try{
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        streamRef = stream;
+        video.srcObject = stream;
+        streaming = true;
+      }catch(e){
+        status.innerText = 'Camera access denied or not available.';
+      }
+    }
+
+    startCam();
+
+    toggleCam.onclick = ()=>{
+      if(streamRef){
+        streamRef.getTracks().forEach(t=>t.stop());
+        streamRef = null;
+        status.innerText = 'Camera stopped.';
+      } else startCam();
+    }
+
+    snap.onclick = async ()=>{
+      if(!streamRef){ status.innerText='Camera not available'; return }
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(async (blob)=>{
+        status.innerText = 'Sending image to server...';
+        const form = new FormData();
+        form.append('image', blob, 'capture.jpg');
+        const resp = await fetch('/mark_attendance', { method: 'POST', body: form });
+        const data = await resp.json();
+        if(data.success){
+          status.innerText = `Marked: ${data.name} (Roll: ${data.roll}) at ${data.timestamp}`;
+        } else {
+          status.innerText = `No match found`;
+        }
+      }, 'image/jpeg', 0.9);
+    }
+  </script>
+</body>
+</html>

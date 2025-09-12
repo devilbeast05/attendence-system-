@@ -1,0 +1,9 @@
+<!doctype html>
+<title>Admin Dashboard</title>
+<h2>Admin Dashboard</h2>
+<p><a href="{{ url_for('admin.admin_logout') }}">Logout</a></p>
+<ul>
+  <li><a href="{{ url_for('admin.admin_register') }}">Register new student</a></li>
+  <li><a href="{{ url_for('admin.admin_view_attendance') }}">View attendance</a></li>
+  <li><a href="{{ url_for('admin.admin_list_students') }}">List students</a></li>
+</ul>
