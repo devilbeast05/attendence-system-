@@ -32,6 +32,8 @@ If you encounter deployment issues:
    repo:
      url: https://github.com/devilbeast05/attendence-system-
      branch: master
-     referenceType: branch
-     referenceValue: master
+     referenceType: commit
+     referenceValue: ba51f8fd24c91a74865075138ff07cf7e682a17b
    ```
+   
+   Note: When using `referenceType: commit`, make sure to use the exact commit hash that works with your application.
