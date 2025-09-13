@@ -5,24 +5,8 @@ echo "Current directory: $(pwd)"
 echo "Listing directory contents:"
 ls -la
 
-# Install system dependencies for dlib and face_recognition with memory optimization
-echo "Installing system dependencies for dlib and face_recognition..."
-apt-get update -y
-apt-get install -y --no-install-recommends \
-  build-essential \
-  cmake \
-  libopenblas-dev \
-  liblapack-dev \
-  libx11-dev \
-  python3-dev \
-  libsm6 \
-  libxext6 \
-  libxrender-dev
-
-# Set environment variables to limit memory usage during build
-export MAKEFLAGS="-j1"
-export DLIB_USE_CUDA=0
-export DLIB_NO_GUI_SUPPORT=YES
+# Using prebuilt wheels for dlib, no need for system dependencies
+echo "Using prebuilt wheels for dlib and face_recognition..."
 
 # Check if requirements.txt exists in current directory
 if [ -f "requirements.txt" ]; then
@@ -55,7 +39,7 @@ else
     
     # Last resort: manually install the required packages
     echo "Attempting to install packages directly..."
-    pip install Flask==2.0.1 Werkzeug==2.0.1 Jinja2==3.0.1 click==8.0.1 itsdangerous==2.0.1 MarkupSafe==2.0.1 gunicorn==20.1.0 Flask-SQLAlchemy==2.5.1 SQLAlchemy==1.4.23 face-recognition==1.3.0 opencv-python-headless==4.7.0.72 dlib==19.22.0
+    pip install Flask==2.0.1 Werkzeug==2.0.1 Jinja2==3.0.1 click==8.0.1 itsdangerous==2.0.1 MarkupSafe==2.0.1 gunicorn==20.1.0 Flask-SQLAlchemy==2.5.1 SQLAlchemy==1.4.23 face-recognition==1.3.0 opencv-python==4.9.0.80 dlib-binary==19.24.2
     
     if [ $? -eq 0 ]; then
         echo "Successfully installed packages directly."

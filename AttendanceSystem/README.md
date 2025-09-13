@@ -9,14 +9,13 @@ This application is configured for deployment on Render.com.
 - **render.yaml**: Contains the service configuration for Render
   - Includes repository URL, branch, and reference configuration
   - Specifies rootDirectory to ensure requirements.txt is found
-  - Installs system dependencies required for face recognition
-  - Sets memory optimization environment variables (MAKEFLAGS="-j1", DLIB_USE_CUDA=0, DLIB_NO_GUI_SUPPORT=YES)
+  - Uses prebuilt wheels for face recognition dependencies to avoid compilation issues
 - **.python-version**: Specifies Python 3.11.4 as the runtime version
 - **runtime.txt**: Explicitly tells Render to use Python 3.11.4
 - **requirements.txt**: Lists all Python dependencies including:
   - face-recognition==1.3.0
-  - opencv-python-headless==4.7.0.72 (headless version to reduce memory usage)
-  - dlib==19.22.0 (specific version to prevent memory issues)
+  - opencv-python==4.9.0.80
+  - dlib-binary==19.24.2 (prebuilt wheel to avoid compilation issues)
 - **Procfile**: Defines the web process command
 
 ### Deployment Steps
@@ -35,14 +34,14 @@ If you encounter deployment issues:
 3. Verify that all dependencies in requirements.txt are compatible with the specified Python version
 4. Check the Render logs for specific error messages
 5. For face recognition dependencies:
-   - Ensure the system dependencies are installed correctly
-   - If you see errors related to dlib or face_recognition, check that the build process installed the required system packages
-   - If you encounter memory issues during build ("Ran out of memory"), the application now includes memory optimization:
-     - Using opencv-python-headless instead of opencv-python
-     - Using a specific version of dlib (19.22.0) instead of the latest
-     - Setting MAKEFLAGS="-j1" to limit parallel compilation
-     - Setting DLIB_USE_CUDA=0 to disable CUDA support
-     - Setting DLIB_NO_GUI_SUPPORT=YES to disable GUI support
+   - The application now uses prebuilt wheels for dlib to avoid compilation issues
+   - If you see errors related to dlib or face_recognition, check that dlib-binary is installed correctly
+   - If you previously encountered memory issues during build ("Ran out of memory"), this has been resolved by:
+     - Using dlib-binary instead of compiling dlib from source
+     - Using a specific version of face-recognition that works with dlib-binary
+   - If you still encounter issues, you can try:
+     - Checking that your Python version is compatible with the prebuilt wheels
+     - Upgrading to a higher tier on Render with more memory if needed
 5. If you see "requirements.txt not found" errors, the application now includes a custom build script (build.sh) that will:
    - Debug the current directory and file structure
    - Check for requirements.txt in the current directory
@@ -64,7 +63,7 @@ If you encounter deployment issues:
         pip install -r $PWD/requirements.txt
       else
         echo "Installing packages directly"
-        pip install Flask==2.0.1 Werkzeug==2.0.1 Jinja2==3.0.1 click==8.0.1 itsdangerous==2.0.1 MarkupSafe==2.0.1 gunicorn==20.1.0 Flask-SQLAlchemy==2.5.1 SQLAlchemy==1.4.23 face-recognition==1.3.0 opencv-python-headless==4.7.0.72 dlib==19.22.0
+        pip install Flask==2.0.1 Werkzeug==2.0.1 Jinja2==3.0.1 click==8.0.1 itsdangerous==2.0.1 MarkupSafe==2.0.1 gunicorn==20.1.0 Flask-SQLAlchemy==2.5.1 SQLAlchemy==1.4.23 face-recognition==1.3.0 opencv-python==4.9.0.80 dlib-binary==19.24.2
       fi
     rootDirectory: ./
     ```
