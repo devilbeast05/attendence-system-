@@ -2,7 +2,20 @@ services:
   - type: web
     name: attendance-system
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      echo "Current directory: $(pwd)"
+      echo "Listing files:"
+      ls -la
+      if [ -f "requirements.txt" ]; then
+        pip install -r requirements.txt
+      elif [ -f "./requirements.txt" ]; then
+        pip install -r ./requirements.txt
+      elif [ -f "$PWD/requirements.txt" ]; then
+        pip install -r $PWD/requirements.txt
+      else
+        echo "Installing packages directly"
+        pip install Flask==2.0.1 Werkzeug==2.0.1 Jinja2==3.0.1 click==8.0.1 itsdangerous==2.0.1 MarkupSafe==2.0.1 gunicorn==20.1.0 Flask-SQLAlchemy==2.5.1 SQLAlchemy==1.4.23
+      fi
     startCommand: gunicorn app:app
     rootDirectory: ./
     repo:
