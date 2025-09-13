@@ -9,9 +9,13 @@ This application is configured for deployment on Render.com.
 - **render.yaml**: Contains the service configuration for Render
   - Includes repository URL, branch, and reference configuration
   - Specifies rootDirectory to ensure requirements.txt is found
+  - Installs system dependencies required for face recognition
 - **.python-version**: Specifies Python 3.11.4 as the runtime version
 - **runtime.txt**: Explicitly tells Render to use Python 3.11.4
-- **requirements.txt**: Lists all Python dependencies
+- **requirements.txt**: Lists all Python dependencies including:
+  - face-recognition==1.3.0
+  - opencv-python==4.7.0.72
+  - dlib>=19.22.0
 - **Procfile**: Defines the web process command
 
 ### Deployment Steps
@@ -29,6 +33,9 @@ If you encounter deployment issues:
 2. Ensure the Python version specified in .python-version is supported by Render
 3. Verify that all dependencies in requirements.txt are compatible with the specified Python version
 4. Check the Render logs for specific error messages
+5. For face recognition dependencies:
+   - Ensure the system dependencies are installed correctly
+   - If you see errors related to dlib or face_recognition, check that the build process installed the required system packages
 5. If you see "requirements.txt not found" errors, the application now includes a custom build script (build.sh) that will:
    - Debug the current directory and file structure
    - Check for requirements.txt in the current directory
@@ -50,7 +57,7 @@ If you encounter deployment issues:
         pip install -r $PWD/requirements.txt
       else
         echo "Installing packages directly"
-        pip install Flask==2.0.1 Werkzeug==2.0.1 Jinja2==3.0.1 click==8.0.1 itsdangerous==2.0.1 MarkupSafe==2.0.1 gunicorn==20.1.0 Flask-SQLAlchemy==2.5.1 SQLAlchemy==1.4.23
+        pip install Flask==2.0.1 Werkzeug==2.0.1 Jinja2==3.0.1 click==8.0.1 itsdangerous==2.0.1 MarkupSafe==2.0.1 gunicorn==20.1.0 Flask-SQLAlchemy==2.5.1 SQLAlchemy==1.4.23 face-recognition==1.3.0 opencv-python==4.7.0.72 dlib>=19.22.0
       fi
     rootDirectory: ./
     ```
