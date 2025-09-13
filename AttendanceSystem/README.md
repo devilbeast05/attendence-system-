@@ -7,6 +7,7 @@ This application is configured for deployment on Render.com.
 ### Configuration Files
 
 - **render.yaml**: Contains the service configuration for Render
+  - Includes repository URL, branch, and reference configuration
 - **.python-version**: Specifies Python 3.11.4 as the runtime version
 - **requirements.txt**: Lists all Python dependencies
 - **Procfile**: Defines the web process command
@@ -26,3 +27,11 @@ If you encounter deployment issues:
 2. Ensure the Python version specified in .python-version is supported by Render
 3. Verify that all dependencies in requirements.txt are compatible with the specified Python version
 4. Check the Render logs for specific error messages
+5. If you see errors related to commit hashes, ensure the render.yaml file has the correct reference configuration:
+   ```yaml
+   repo:
+     url: https://github.com/devilbeast05/attendence-system-
+     branch: master
+     referenceType: branch
+     referenceValue: master
+   ```

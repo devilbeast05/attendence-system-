@@ -7,3 +7,5 @@ services:
     repo:
       url: https://github.com/devilbeast05/attendence-system-
       branch: master
+      referenceType: branch
+      referenceValue: master
