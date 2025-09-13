@@ -4,3 +4,6 @@ services:
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
+    repo:
+      url: https://github.com/devilbeast05/attendence-system-
+      branch: master
