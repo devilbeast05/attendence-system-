@@ -10,4 +10,4 @@ SQLAlchemy==1.4.23
 # Face recognition dependencies with prebuilt wheels
 face-recognition==1.3.0
 opencv-python==4.9.0.80
-dlib-binary==19.24.2  # Using prebuilt binary instead of compiling from source
+dlib-binary==19.21.99 # Using prebuilt binary instead of compiling from source
