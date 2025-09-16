@@ -1,10 +1,342 @@
-<!doctype html>
-<title>Students</title>
-<h2>Registered Students</h2>
-<table border=1 cellpadding=6>
-<tr><th>ID</th><th>Name</th><th>Roll</th></tr>
+{% extends "base.html" %}
+
+{% block title %}Students Directory{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.25rem 0.5rem;
+        margin-left: 2px;
+        border-radius: 50px;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        color: white !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-soft) !important;
+        border-color: var(--primary-soft) !important;
+        color: var(--primary-color) !important;
+    }
+    .dataTables_info {
+        color: var(--gray-color);
+        font-size: 0.875rem;
+    }
+    #studentSearch:focus {
+        box-shadow: 0 0 0 0.25rem rgba(58, 12, 163, 0.25);
+        border-color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="m-0 fw-bold text-primary"><i class="fas fa-users me-2"></i>Registered Students</h5>
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if students %}
+                    <div class="p-3">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="input-group mb-md-0">
+                                    <span class="input-group-text bg-primary text-white"><i class="fas fa-search"></i></span>
+                                    <input type="text" id="studentSearch" class="form-control" placeholder="Search by name or roll number...">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex">
+                                    <div class="input-group me-2">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-graduation-cap"></i></span>
+                                        <select class="form-select" id="classFilter">
+                                            <option value="">All Classes</option>
+                                            {% for class_name in classes %}
+                                            <option value="{{ class_name }}" {% if class_filter == class_name %}selected{% endif %}>{{ class_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="input-group me-2">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-users"></i></span>
+                                        <select class="form-select" id="sectionFilter">
+                                            <option value="">All Sections</option>
+                                            {% for section in sections %}
+                                            <option value="{{ section }}" {% if section_filter == section %}selected{% endif %}>{{ section }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <button type="button" id="applyFilters" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="studentsTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">ID</th>
+                                    <th>Name</th>
+                                    <th>Roll Number</th>
+                                    <th>Class</th>
+                                    <th>Section</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in students %}
+                                <tr>
+                                    <td class="ps-4">{{ s[0] }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#studentPhotoModal{{ s[0] }}" class="me-3">
+                                                <div class="avatar-sm bg-primary-soft rounded-circle d-flex align-items-center justify-content-center">
+                                                    <span class="text-primary fw-bold">{{ s[1][0] | upper }}</span>
+                                                </div>
+                                            </a>
+                                            <div>{{ s[1] }}</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark">{{ s[2] }}</span></td>
+                                    <td>{% if s[3] %}<span class="badge bg-primary-soft text-primary">{{ s[3] }}</span>{% else %}-{% endif %}</td>
+                                    <td>{% if s[4] %}<span class="badge bg-success-soft text-success">{{ s[4] }}</span>{% else %}-{% endif %}</td>
+                                    <td class="text-end pe-4">
+                                        <a href="{{ url_for('attendance.view_student', student_id=s[0]) }}" class="btn btn-sm btn-primary rounded-pill px-3">
+                                             <i class="fas fa-eye me-1"></i> View
+                                         </a>
+                                        <a href="{{ url_for('attendance.edit_student', student_id=s[0]) }}" class="btn btn-sm btn-info rounded-pill px-3 text-white">
+                                            <i class="fas fa-edit me-1"></i> Edit
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ s[0] }}">
+                                            <i class="fas fa-trash me-1"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info m-3 d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2 fs-4"></i>
+                        <div>No students registered yet.</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Student Photo Modals -->
 {% for s in students %}
-<tr><td>{{ s[0] }}</td><td>{{ s[1] }}</td><td>{{ s[2] }}</td></tr>
+<div class="modal fade" id="studentPhotoModal{{ s[0] }}" tabindex="-1" aria-labelledby="studentPhotoModalLabel{{ s[0] }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="studentPhotoModalLabel{{ s[0] }}">{{ s[1] }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="student-photo-container mx-auto mb-3" style="max-width: 300px;">
+                    <div id="studentPhotoContent{{ s[0] }}" class="position-relative">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <h5 class="mb-2">{{ s[1] }}</h5>
+                <p class="text-muted mb-0">Roll Number: {{ s[2] }}</p>
+            </div>
+            <div class="modal-footer border-0">
+                <a href="{{ url_for('attendance.view_student', student_id=s[0]) }}" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-user me-1"></i> View Full Profile
+                </a>
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endfor %}
-</table>
-<p><a href="{{ url_for('admin.admin_dashboard') }}">Back</a></p>
+
+
+
+<!-- Delete Student Modals -->
+{% for s in students %}
+<div class="modal fade" id="deleteStudentModal{{ s[0] }}" tabindex="-1" aria-labelledby="deleteStudentModalLabel{{ s[0] }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="deleteStudentModalLabel{{ s[0] }}">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <div class="avatar-lg bg-danger-soft rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-exclamation-triangle text-danger fa-2x"></i>
+                    </div>
+                    <h4 class="mb-3">Delete Student Record</h4>
+                    <p>Are you sure you want to delete student <strong>{{ s[1] }}</strong> (Roll: {{ s[2] }})? This action cannot be undone.</p>
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <div>This will permanently delete the student record and all associated attendance data.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('attendance.delete_student', student_id=s[0]) }}" method="POST">
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">Delete Student</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Load student photos when modals are opened
+        {% for s in students %}
+        $('#studentPhotoModal{{ s[0] }}').on('show.bs.modal', function () {
+            const studentId = {{ s[0] }};
+            const photoContainer = $('#studentPhotoContent{{ s[0] }}');
+            
+            // Try to load the student image
+            $.ajax({
+                url: '{{ url_for("attendance.serve_student_image", student_id=s[0]) }}',
+                type: 'GET',
+                success: function() {
+                    // Image exists, display it
+                    photoContainer.html(`
+                        <div class="rounded overflow-hidden shadow-sm border border-3 border-white" style="max-height: 300px;">
+                            <img src="{{ url_for('attendance.serve_student_image', student_id=s[0]) }}" 
+                                alt="{{ s[1] }}" 
+                                class="img-fluid w-100 object-fit-cover">
+                        </div>
+                    `);
+                },
+                error: function() {
+                    // Image doesn't exist, show placeholder
+                    photoContainer.html(`
+                        <div class="bg-primary-soft rounded d-flex align-items-center justify-content-center mx-auto shadow-sm border border-3 border-white" style="height: 300px;">
+                            <i class="fas fa-user fa-5x text-primary"></i>
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No photo available for this student
+                        </div>
+                    `);
+                }
+            });
+        });
+        {% endfor %}
+        
+
+    });
+    
+    // Initialize DataTables with search functionality
+    $(document).ready(function() {
+        var studentsTable = $('#studentsTable').DataTable({
+            paging: true,
+            ordering: true,
+            info: true,
+            lengthChange: false,
+            pageLength: 10,
+            responsive: true,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search...",
+                info: "Showing _START_ to _END_ of _TOTAL_ students",
+                infoEmpty: "No students found",
+                paginate: {
+                    first: '<i class="fas fa-angle-double-left"></i>',
+                    last: '<i class="fas fa-angle-double-right"></i>',
+                    next: '<i class="fas fa-angle-right"></i>',
+                    previous: '<i class="fas fa-angle-left"></i>'
+                }
+            },
+            dom: '<"row"<"col-sm-12"f>><"row"<"col-sm-12"tr>><"row"<"col-sm-12 d-flex justify-content-between align-items-center"ip>>',
+            drawCallback: function() {
+                $('.dataTables_paginate > .pagination').addClass('pagination-sm justify-content-end');
+                $('.dataTables_filter input').addClass('form-control-sm rounded-pill');
+            },
+            initComplete: function() {
+                // Hide the default search box
+                $('.dataTables_filter').hide();
+                
+                // Use our custom search box
+                $('#studentSearch').on('keyup', function() {
+                    studentsTable.search($(this).val()).draw();
+                });
+                
+                // Custom filtering function for class column
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        var classValue = $('#classFilter').val();
+                        
+                        // If no class filter is selected, show all rows
+                        if (!classValue) {
+                            return true;
+                        }
+                        
+                        // Get the class value from the 4th column (index 3)
+                        var rowClass = data[3];
+                        
+                        // Check if the row class contains the selected class
+                        if (rowClass.includes(classValue)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                );
+                
+                // Custom filtering function for section column
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        var sectionValue = $('#sectionFilter').val();
+                        
+                        // If no section filter is selected, show all rows
+                        if (!sectionValue) {
+                            return true;
+                        }
+                        
+                        // Get the section value from the 5th column (index 4)
+                        var rowSection = data[4];
+                        
+                        // Check if the row section contains the selected section
+                        if (rowSection.includes(sectionValue)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                );
+                
+                // Apply filters when dropdown values change
+                $('#classFilter, #sectionFilter').on('change', function() {
+                    studentsTable.draw();
+                });
+                
+                // Apply both filters when the filter button is clicked
+                $('#applyFilters').on('click', function() {
+                    studentsTable.draw();
+                });
+                
+                // Apply initial filters if they are set
+                if ($('#classFilter').val()) {
+                    studentsTable.draw();
+                }
+                
+                if ($('#sectionFilter').val()) {
+                    studentsTable.draw();
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

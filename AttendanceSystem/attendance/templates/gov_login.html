@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% set hide_navbar = True %}
+{% set hide_sidebar = True %}
+
+{% block title %}Government Login - Attendance System{% endblock %}
+
+{% block content %}
+<div class="login-container d-flex align-items-center justify-content-center min-vh-100 py-5">
+    <div class="card login-card border-0 shadow-sm" style="max-width: 450px; width: 100%;">
+        <div class="login-header p-4 pb-0">
+            <div class="text-center mb-4">
+                <div class="avatar-xl bg-primary-soft rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center">
+                    <i class="fas fa-landmark fa-2x text-primary"></i>
+                </div>
+                <h3 class="fw-bold">Government Portal</h3>
+                <p class="text-muted mb-0">Enter your credentials to access the government dashboard</p>
+            </div>
+        </div>
+        <div class="login-body p-4 pt-2">
+            {% if error %}
+            <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <div>{{ error }}</div>
+            </div>
+            {% endif %}
+            <form method="post" action="{{ url_for('gov.login') }}">
+                <div class="mb-4">
+                    <label for="username" class="form-label fw-bold small text-uppercase">Username</label>
+                    <div class="input-group input-group-lg shadow-sm">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-primary"></i></span>
+                        <input type="text" class="form-control bg-light border-start-0 ps-0" id="username" name="username" placeholder="Enter your username" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-bold small text-uppercase">Password</label>
+                    <div class="input-group input-group-lg shadow-sm">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-primary"></i></span>
+                        <input type="password" class="form-control bg-light border-start-0 ps-0" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill">Sign In <i class="fas fa-arrow-right ms-2"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

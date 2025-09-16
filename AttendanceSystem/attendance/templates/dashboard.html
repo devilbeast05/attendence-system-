@@ -1,9 +1,159 @@
-<!doctype html>
-<title>Admin Dashboard</title>
-<h2>Admin Dashboard</h2>
-<p><a href="{{ url_for('admin.admin_logout') }}">Logout</a></p>
-<ul>
-  <li><a href="{{ url_for('admin.admin_register') }}">Register new student</a></li>
-  <li><a href="{{ url_for('admin.admin_view_attendance') }}">View attendance</a></li>
-  <li><a href="{{ url_for('admin.admin_list_students') }}">List students</a></li>
-</ul>
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h5>
+                    <div>
+                        <a href="{{ url_for('admin.settings') }}" class="btn btn-sm btn-outline-primary rounded-pill me-2"><i class="fas fa-cog me-1"></i> Settings</a>
+                        <a href="{{ url_for('admin.logout') }}" class="btn btn-sm btn-outline-danger rounded-pill"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Students</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ student_count|default('0') }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Today's Attendance</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ today_attendance|default('0') }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Attendance Rate</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ attendance_rate|default('0%') }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total Records</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_records|default('0') }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-database fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-4">
+                                    <a href="{{ url_for('attendance.register_student') }}" class="card bg-light text-decoration-none h-100">
+                                        <div class="card-body text-center py-5">
+                                            <i class="fas fa-user-plus fa-3x mb-3 text-primary"></i>
+                                            <h5 class="card-title">Register Student</h5>
+                                            <p class="card-text text-muted">Add new students to the system</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-4">
+                                    <a href="{{ url_for('attendance.view_logs') }}" class="card bg-light text-decoration-none h-100">
+                                        <div class="card-body text-center py-5">
+                                            <i class="fas fa-clipboard-list fa-3x mb-3 text-success"></i>
+                                            <h5 class="card-title">View Attendance</h5>
+                                            <p class="card-text text-muted">Check and export attendance records</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-4">
+                                    <a href="{{ url_for('attendance.students') }}" class="card bg-light text-decoration-none h-100">
+                                        <div class="card-body text-center py-5">
+                                            <i class="fas fa-users fa-3x mb-3 text-info"></i>
+                                            <h5 class="card-title">Student Directory</h5>
+                                            <p class="card-text text-muted">View all registered students</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-4">
+                                    <a href="{{ url_for('admin.analytics') }}" class="card bg-light text-decoration-none h-100">
+                                        <div class="card-body text-center py-5">
+                                            <i class="fas fa-chart-bar fa-3x mb-3 text-warning"></i>
+                                            <h5 class="card-title">Analytics</h5>
+                                            <p class="card-text text-muted">View attendance analytics and trends</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- ID Management Section -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card border-warning">
+                                        <div class="card-header bg-warning-soft">
+                                            <h6 class="m-0 fw-bold text-warning"><i class="fas fa-tools me-2"></i>ID Management</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">Reassign Student IDs</h6>
+                                                    <p class="text-muted mb-0 small">Reset all student IDs to sequential numbers (1, 2, 3...) based on current order</p>
+                                                </div>
+                                                <form method="POST" action="{{ url_for('admin.reassign_student_ids') }}" class="d-inline" onsubmit="return confirm('Are you sure you want to reassign all student IDs? This will update all student records and attendance data.')">
+                                                    <button type="submit" class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-sort-numeric-up me-1"></i> Reassign IDs
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

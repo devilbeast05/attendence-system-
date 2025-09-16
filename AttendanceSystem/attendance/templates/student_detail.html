@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Student Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="m-0 fw-bold text-primary"><i class="fas fa-user me-2"></i>Student Details</h5>
+                    <div>
+                        <a href="{{ url_for('attendance.edit_student', student_id=student[0]) }}" class="btn btn-outline-success btn-sm rounded-pill px-3">
+                            <i class="fas fa-edit me-1"></i> Edit Student
+                        </a>
+                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 ms-2" data-bs-toggle="modal" data-bs-target="#deleteStudentModal">
+                            <i class="fas fa-trash me-1"></i> Delete Student
+                        </button>
+                        <a href="{{ url_for('attendance.students') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 ms-2"><i class="fas fa-arrow-left me-1"></i> Back to Students</a>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="profile-container position-relative mx-auto" style="max-width: 200px;">
+                                {% if image_path %}
+                                <div class="profile-image-container rounded-circle overflow-hidden shadow-sm border border-3 border-white" style="width: 200px; height: 200px;">
+                                    <img src="{{ url_for('static', filename='uploads/' + student[1] + '_' + student[2] + '.jpg') }}" alt="{{ student[1] }}" class="img-fluid w-100 h-100 object-fit-cover">
+                                </div>
+                                {% else %}
+                                <div class="bg-primary-soft rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-sm border border-3 border-white" style="width: 200px; height: 200px;">
+                                    <i class="fas fa-user fa-5x text-primary"></i>
+                                </div>
+                                {% endif %}
+                                <div class="badge bg-success position-absolute bottom-0 end-0 rounded-pill px-3 py-2 shadow-sm">
+                                    <i class="fas fa-id-card me-1"></i> Student
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center mb-3">
+                                <h3 class="fw-bold mb-0">{{ student[1] }}</h3>
+                                <span class="badge bg-primary ms-3 rounded-pill px-3">ID: {{ student[0] }}</span>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-light rounded-pill px-3 py-2 d-inline-flex align-items-center">
+                                    <i class="fas fa-id-badge text-primary me-2"></i>
+                                    <span class="fw-medium">Roll Number: <span class="fw-bold">{{ student[2] }}</span></span>
+                                </div>
+                                {% if student[3] %}
+                                <div class="bg-primary-soft rounded-pill px-3 py-2 d-inline-flex align-items-center ms-2">
+                                    <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                    <span class="fw-medium">Class: <span class="fw-bold">{{ student[3] }}</span></span>
+                                </div>
+                                {% endif %}
+                                {% if student[4] %}
+                                <div class="bg-success-soft rounded-pill px-3 py-2 d-inline-flex align-items-center ms-2">
+                                    <i class="fas fa-users text-success me-2"></i>
+                                    <span class="fw-medium">Section: <span class="fw-bold">{{ student[4] }}</span></span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="d-flex align-items-center mb-3">
+                                <h5 class="fw-bold mb-0"><i class="fas fa-clipboard-list me-2 text-primary"></i>Attendance Records</h5>
+                                <span class="badge bg-light text-dark ms-2 rounded-pill">{{ attendance_records|length if attendance_records else 0 }} Records</span>
+                            </div>
+                            
+                            {% if attendance_records %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-3">#</th>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for record in attendance_records %}
+                                        <tr>
+                                            <td class="ps-3">{{ loop.index }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-calendar-day text-primary me-2"></i>
+                                                    {{ record[0].split(' ')[0] }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-clock text-primary me-2"></i>
+                                                    {{ record[0].split(' ')[1] }}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info d-flex align-items-center">
+                                <i class="fas fa-info-circle me-2 fs-4"></i>
+                                <div>No attendance records found for this student.</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Student Modal -->
+<div class="modal fade" id="deleteStudentModal" tabindex="-1" aria-labelledby="deleteStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="deleteStudentModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <div class="avatar-lg bg-danger-soft rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-exclamation-triangle text-danger fa-2x"></i>
+                    </div>
+                    <h4 class="mb-3">Delete Student Record</h4>
+                    <p>Are you sure you want to delete student <strong>{{ student[1] }}</strong> (Roll: {{ student[2] }})? This action cannot be undone.</p>
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <div>This will permanently delete the student record and all associated attendance data.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('attendance.delete_student', student_id=student[0]) }}" method="POST">
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">Delete Student</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

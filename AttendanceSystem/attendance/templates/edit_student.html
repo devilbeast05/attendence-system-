@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="m-0 fw-bold text-primary"><i class="fas fa-user-edit me-2"></i>Edit Student Information</h5>
+                    <a href="{{ url_for('attendance.view_student', student_id=student[0]) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3"><i class="fas fa-arrow-left me-1"></i> Back to Student Profile</a>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="profile-container position-relative mx-auto" style="max-width: 200px;">
+                                {% set image_path = url_for('attendance.serve_student_image', student_id=student[0]) %}
+                                <div id="studentImageContainer" class="rounded-circle overflow-hidden shadow-sm border border-3 border-white" style="width: 200px; height: 200px;">
+                                    <img id="studentImage" src="{{ image_path }}" alt="{{ student[1] }}" class="img-fluid w-100 h-100 object-fit-cover" onerror="this.onerror=null; showDefaultImage();">
+                                </div>
+                                <div class="badge bg-primary position-absolute bottom-0 end-0 rounded-pill px-3 py-2 shadow-sm">
+                                    <i class="fas fa-user-edit me-1"></i> Editing
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <form action="{{ url_for('attendance.edit_student', student_id=student[0]) }}" method="POST">
+                                <div class="mb-3">
+                                    <label for="studentName" class="form-label fw-medium">Student Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-user"></i></span>
+                                        <input type="text" class="form-control" id="studentName" name="name" value="{{ student[1] }}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="studentRoll" class="form-label fw-medium">Roll Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-id-badge"></i></span>
+                                        <input type="text" class="form-control" id="studentRoll" name="roll" value="{{ student[2] }}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="studentClass" class="form-label fw-medium">Class</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-graduation-cap"></i></span>
+                                        <input type="text" class="form-control" id="studentClass" name="class" value="{{ student[3] if student[3] else '' }}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="studentSection" class="form-label fw-medium">Section</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-users"></i></span>
+                                        <input type="text" class="form-control" id="studentSection" name="section" value="{{ student[4] if student[4] else '' }}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info d-flex align-items-center mb-4">
+                                    <i class="fas fa-info-circle me-2 fs-4"></i>
+                                    <div>
+                                        <strong>Note:</strong> Changing student information will also update associated records and image filenames.
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-end">
+                                    <a href="{{ url_for('attendance.view_student', student_id=student[0]) }}" class="btn btn-light rounded-pill px-4 me-2">
+                                        <i class="fas fa-times me-1"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                        <i class="fas fa-save me-1"></i> Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showDefaultImage() {
+        // Replace with default image if student image fails to load
+        document.getElementById('studentImageContainer').innerHTML = `
+            <div class="bg-primary-soft rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 200px; height: 200px;">
+                <i class="fas fa-user fa-5x text-primary"></i>
+            </div>
+        `;
+    }
+    
+    // Validate form on submit
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            const nameInput = document.getElementById('studentName');
+            const rollInput = document.getElementById('studentRoll');
+            
+            if (!nameInput.value.trim()) {
+                event.preventDefault();
+                alert('Please enter a valid student name');
+                nameInput.focus();
+                return false;
+            }
+            
+            if (!rollInput.value.trim()) {
+                event.preventDefault();
+                alert('Please enter a valid roll number');
+                rollInput.focus();
+                return false;
+            }
+            
+            return true;
+        });
+    });
+</script>
+{% endblock %}

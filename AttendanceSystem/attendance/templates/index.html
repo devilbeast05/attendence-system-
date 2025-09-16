@@ -1,68 +1,222 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Face Attendance - Scan</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>body{font-family:Arial;padding:10px;max-width:720px;margin:auto}button{padding:10px 16px}</style>
-</head>
-<body>
-  <h2>Attendance - Face Scan</h2>
-  <video id="video" width="640" height="480" autoplay muted></video>
-  <div>
-    <button id="snap">Capture & Mark Attendance</button>
-    <button id="toggleCam">Turn Off Camera</button>
-  </div>
-  <p id="status"></p>
-  <script>
+{% extends "base.html" %}
+
+{% block title %}Face Attendance - Scan{% endblock %}
+
+{% block extra_css %}
+<style>
+    .video-container {
+        position: relative;
+        margin: 0 auto;
+        max-width: 640px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    .video-container:hover {
+        transform: translateY(-5px);
+    }
+    #video {
+        width: 100%;
+        display: block;
+        border-radius: 12px;
+    }
+    .controls {
+        margin-top: 25px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    #status {
+        margin-top: 20px;
+        border-radius: 8px;
+        text-align: left;
+    }
+    .status-info {
+        background-color: var(--info-soft);
+        color: var(--secondary-color);
+        border-left: 4px solid var(--secondary-color);
+    }
+    .status-success {
+        background-color: var(--success-soft);
+        color: var(--success-color);
+        border-left: 4px solid var(--success-color);
+    }
+    .status-error {
+        background-color: var(--danger-soft);
+        color: var(--danger-color);
+        border-left: 4px solid var(--danger-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="m-0 fw-bold text-primary"><i class="fas fa-camera me-2"></i>Attendance - Face Scan</h5>
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+                </div>
+                <div class="card-body p-4">
+                    <div class="video-container mb-4 shadow-sm">
+                        <video id="video" height="480" autoplay muted></video>
+                    </div>
+                    
+                    <div class="controls">
+                        <button id="snap" class="btn btn-primary rounded-pill px-4"><i class="fas fa-camera me-2"></i> Capture & Mark Attendance</button>
+                        <button id="toggleCam" class="btn btn-secondary rounded-pill px-4"><i class="fas fa-video-slash me-2"></i> Turn Off Camera</button>
+                    </div>
+                    
+                    <div id="status" class="mt-4 p-3 rounded-3 d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2 fs-4"></i>
+                        <div>Position your face in the frame and click Capture.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
     let streaming = false;
     const video = document.getElementById('video');
     const status = document.getElementById('status');
-    const snap = document.getElementById('snap');
-    const toggleCam = document.getElementById('toggleCam');
-    let streamRef;
-
-    async function startCam(){
-      try{
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        streamRef = stream;
-        video.srcObject = stream;
-        streaming = true;
-      }catch(e){
-        status.innerText = 'Camera access denied or not available.';
-      }
-    }
-
-    startCam();
-
-    toggleCam.onclick = ()=>{
-      if(streamRef){
-        streamRef.getTracks().forEach(t=>t.stop());
-        streamRef = null;
-        status.innerText = 'Camera stopped.';
-      } else startCam();
-    }
-
-    snap.onclick = async ()=>{
-      if(!streamRef){ status.innerText='Camera not available'; return }
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(async (blob)=>{
-        status.innerText = 'Sending image to server...';
-        const form = new FormData();
-        form.append('image', blob, 'capture.jpg');
-        const resp = await fetch('/mark_attendance', { method: 'POST', body: form });
-        const data = await resp.json();
-        if(data.success){
-          status.innerText = `Marked: ${data.name} (Roll: ${data.roll}) at ${data.timestamp}`;
-        } else {
-          status.innerText = `No match found`;
+    
+    // Function to update status with icon
+    function updateStatus(message, type) {
+        // Clear previous content
+        status.innerHTML = '';
+        
+        // Create icon element
+        const icon = document.createElement('i');
+        icon.className = 'me-2 fs-4 ';
+        
+        // Set icon based on type
+        if (type === 'status-info') {
+            icon.className += 'fas fa-info-circle';
+            status.className = 'status-info mt-4 p-3 rounded-3 d-flex align-items-center';
+        } else if (type === 'status-success') {
+            icon.className += 'fas fa-check-circle';
+            status.className = 'status-success mt-4 p-3 rounded-3 d-flex align-items-center';
+        } else if (type === 'status-error') {
+            icon.className += 'fas fa-exclamation-circle';
+            status.className = 'status-error mt-4 p-3 rounded-3 d-flex align-items-center';
         }
-      }, 'image/jpeg', 0.9);
+        
+        // Create text container
+        const textDiv = document.createElement('div');
+        textDiv.textContent = message;
+        
+        // Append elements
+        status.appendChild(icon);
+        status.appendChild(textDiv);
     }
-  </script>
-</body>
-</html>
+    
+    // Get access to the camera
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                video.srcObject = stream;
+                video.play();
+                streaming = true;
+                updateStatus('Camera active. Position face in frame and click Capture.', 'status-info');
+            })
+            .catch(function(err) {
+                console.log("An error occurred: " + err);
+                updateStatus('Camera error: ' + err.message, 'status-error');
+            });
+    }
+    
+    // Toggle camera on/off
+    document.getElementById('toggleCam').addEventListener('click', function() {
+        if (streaming) {
+            const stream = video.srcObject;
+            const tracks = stream.getTracks();
+            
+            // Update button appearance when turning off camera
+            this.innerHTML = '<i class="fas fa-video me-2"></i> Turn On Camera';
+            this.classList.remove('btn-secondary');
+            this.classList.add('btn-outline-secondary');
+            
+            tracks.forEach(function(track) {
+                track.stop();
+            });
+            video.srcObject = null;
+            streaming = false;
+            updateStatus('Camera turned off.', 'status-info');
+        } else {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                    streaming = true;
+                    const toggleBtn = document.getElementById('toggleCam');
+                    toggleBtn.innerHTML = '<i class="fas fa-video-slash me-2"></i> Turn Off Camera';
+                    toggleBtn.classList.remove('btn-outline-secondary');
+                    toggleBtn.classList.add('btn-secondary');
+                    updateStatus('Camera active. Position face in frame and click Capture.', 'status-info');
+                })
+                .catch(function(err) {
+                    console.log("An error occurred: " + err);
+                    updateStatus('Camera error: ' + err.message, 'status-error');
+                });
+        }
+    });
+    
+    // Capture image and send to server
+    document.getElementById('snap').addEventListener('click', function() {
+        if (!streaming) {
+            updateStatus('Camera is off. Please turn it on first.', 'status-error');
+            return;
+        }
+        
+        // Show processing state with spinner
+        status.innerHTML = '<div class="d-flex align-items-center"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div><div>Processing...</div></div>';
+        status.className = 'status-info mt-4 p-3 rounded-3 d-flex align-items-center';
+        
+        // Disable the capture button during processing
+        const snapButton = document.getElementById('snap');
+        snapButton.disabled = true;
+        snapButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        const img = canvas.toDataURL('image/jpeg');
+        
+        fetch('/attendance/scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ image: img })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Re-enable the capture button
+            snapButton.disabled = false;
+            snapButton.innerHTML = '<i class="fas fa-camera me-2"></i> Capture & Mark Attendance';
+            
+            if (data.success) {
+                updateStatus('Success: ' + data.message, 'status-success');
+            } else {
+                updateStatus('Error: ' + data.message, 'status-error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            updateStatus('Error: ' + error, 'status-error');
+            
+            // Re-enable the capture button
+            snapButton.disabled = false;
+            snapButton.innerHTML = '<i class="fas fa-camera me-2"></i> Capture & Mark Attendance';
+        });
+    });
+</script>
+{% endblock %}

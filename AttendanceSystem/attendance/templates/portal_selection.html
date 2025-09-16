@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% set hide_navbar = True %}
+{% set hide_sidebar = True %}
+
+{% block title %}Portal Selection - Attendance System{% endblock %}
+
+{% block content %}
+<div class="login-container d-flex align-items-center justify-content-center min-vh-100 py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-primary">Attendance System</h2>
+                <p class="text-muted">Please select a portal to continue</p>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="card portal-card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body p-5 text-center">
+                        <div class="avatar-xl bg-primary-soft rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-user-shield fa-2x text-primary"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">Admin Portal</h3>
+                        <p class="text-muted mb-4">Manage students, attendance records, and system settings</p>
+                        <a href="{{ url_for('admin.login') }}" class="btn btn-primary btn-lg rounded-pill w-100">Access Admin Portal</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="card portal-card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body p-5 text-center">
+                        <div class="avatar-xl bg-primary-soft rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-landmark fa-2x text-primary"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">Government Portal</h3>
+                        <p class="text-muted mb-4">Access attendance reports and government-specific features</p>
+                        <a href="{{ url_for('gov.login') }}" class="btn btn-primary btn-lg rounded-pill w-100">Access Government Portal</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    }
+    
+    .avatar-xl {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .bg-primary-soft {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Attendance Analytics</h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="printBtn">
+            <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
+        </a>
+    </div>
+
+    <!-- Date Range Selector -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Select Date Range</h6>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{{ url_for('gov.analytics') }}" class="row g-3 align-items-center">
+                        <div class="col-auto">
+                            <label for="start_date" class="col-form-label">Start Date:</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}">
+                        </div>
+                        <div class="col-auto">
+                            <label for="end_date" class="col-form-label">End Date:</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Daily Attendance Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Daily Attendance Trend</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="dailyAttendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance by Class -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Attendance by Class</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="classPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Hourly Trend -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Hourly Attendance Trend</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="hourlyBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance by Section -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Attendance by Section</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="sectionBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Attendance Details Table -->
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Attendance Details</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for date, count in daily_counts %}
+                                <tr>
+                                    <td>{{ date }}</td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Daily Attendance Chart
+    var dailyCtx = document.getElementById('dailyAttendanceChart').getContext('2d');
+    var dailyChart = new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+            labels: {{ dates|safe }},
+            datasets: [{
+                label: 'Daily Attendance',
+                data: {{ counts|safe }},
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Class Pie Chart
+    var classCtx = document.getElementById('classPieChart').getContext('2d');
+    var classChart = new Chart(classCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ class_labels|safe }},
+            datasets: [{
+                data: {{ class_data|safe }},
+                backgroundColor: [
+                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                    '#5a5c69', '#6610f2', '#6f42c1', '#fd7e14', '#20c997'
+                ],
+                hoverBackgroundColor: [
+                    '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617',
+                    '#3a3b45', '#4e0bc0', '#59359a', '#d56a0f', '#159a74'
+                ],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Hourly Bar Chart
+    var hourlyCtx = document.getElementById('hourlyBarChart').getContext('2d');
+    var hourlyChart = new Chart(hourlyCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ hours|safe }},
+            datasets: [{
+                label: 'Attendance by Hour',
+                data: {{ hourly_data|safe }},
+                backgroundColor: 'rgba(54, 185, 204, 0.7)',
+                borderColor: 'rgba(54, 185, 204, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Section Bar Chart
+    var sectionCtx = document.getElementById('sectionBarChart').getContext('2d');
+    var sectionChart = new Chart(sectionCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ section_labels|safe }},
+            datasets: [{
+                label: 'Attendance by Section',
+                data: {{ section_data|safe }},
+                backgroundColor: 'rgba(28, 200, 138, 0.7)',
+                borderColor: 'rgba(28, 200, 138, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Print functionality
+    document.getElementById('printBtn').addEventListener('click', function() {
+        window.print();
+    });
+</script>
+{% endblock %}

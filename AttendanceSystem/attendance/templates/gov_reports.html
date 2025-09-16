@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Reports{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.25rem 0.5rem;
+        margin-left: 2px;
+        border-radius: 50px;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        color: white !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-soft) !important;
+        border-color: var(--primary-soft) !important;
+        color: var(--primary-color) !important;
+    }
+    .dataTables_info {
+        color: var(--gray-color);
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Attendance Reports</h1>
+        <a href="{{ url_for('gov.export_data', start_date=req_date, end_date=req_date) }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-file-export fa-sm text-white-50"></i> Export Report
+        </a>
+    </div>
+
+    <!-- Date Selector -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Select Date</h6>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{{ url_for('gov.reports') }}" class="row g-3 align-items-center">
+                        <div class="col-auto">
+                            <label for="date" class="col-form-label">Date:</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date" class="form-control" id="date" name="date" value="{{ req_date }}">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Records Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Attendance Records for {{ req_date }}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="dataTable" width="100%" cellspacing="0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Roll No.</th>
+                                    <th>Class</th>
+                                    <th>Section</th>
+                                    <th>Check-in Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in records %}
+                                <tr>
+                                    <td class="ps-4">{{ record[0] }}</td>
+                                    <td>{{ record[1] }}</td>
+                                    <td>{{ record[2] }}</td>
+                                    <td>{{ record[3] }}</td>
+                                    <td>{{ record[4] }}</td>
+                                    <td>{{ record[5] }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No attendance records found for this date.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DataTables JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Only initialize DataTable if there are records
+        if (document.querySelectorAll('#dataTable tbody tr').length > 0 && 
+            !document.querySelector('#dataTable tbody tr td[colspan]')) {
+            const dataTable = new simpleDatatables.DataTable("#dataTable", {
+                searchable: true,
+                fixedHeight: true,
+                perPage: 10,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search...",
+                    info: "Showing _START_ to _END_ of _TOTAL_ records",
+                    infoEmpty: "No records found",
+                    paginate: {
+                        first: '<i class="fas fa-angle-double-left"></i>',
+                        last: '<i class="fas fa-angle-double-right"></i>',
+                        next: '<i class="fas fa-angle-right"></i>',
+                        previous: '<i class="fas fa-angle-left"></i>'
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -11,7 +11,9 @@ def create_app():
     # register blueprints
     from .routes_attendance import attendance_bp
     from .routes_admin import admin_bp
+    from .routes_gov import gov_bp  # Add this line
     app.register_blueprint(attendance_bp)
     app.register_blueprint(admin_bp, url_prefix="/admin")
+    app.register_blueprint(gov_bp, url_prefix="/gov")  # Add this line
 
     return app

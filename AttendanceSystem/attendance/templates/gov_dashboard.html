@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Government Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-tachometer-alt me-2"></i>Government Dashboard</h5>
+                    <div>
+                        <a href="{{ url_for('gov.logout') }}" class="btn btn-sm btn-outline-danger rounded-pill"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Students</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ student_count|default('0') }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Today's Attendance</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ today_attendance|default('0') }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Records</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_records|default('0') }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-database fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <a href="{{ url_for('gov.reports') }}" class="btn btn-primary btn-block py-3">
+                                                <i class="fas fa-calendar-check me-2"></i> View Attendance Reports
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <a href="{{ url_for('gov.analytics') }}" class="btn btn-success btn-block py-3">
+                                                <i class="fas fa-chart-bar me-2"></i> Attendance Analytics
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <a href="{{ url_for('gov.export_data') }}" class="btn btn-info btn-block py-3">
+                                                <i class="fas fa-file-export me-2"></i> Export Data
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <a href="{{ url_for('gov.sync_status') }}" class="btn btn-secondary btn-block py-3">
+                                                <i class="fas fa-sync me-2"></i> Sync Status
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sync Status Modal -->
+                    <div class="modal fade" id="syncModal" tabindex="-1" aria-labelledby="syncModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="syncModalLabel">Synchronization Status</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <h6>Last Sync: <span class="text-muted">{{ last_sync|default('Never') }}</span></h6>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>Sync Statistics</h6>
+                                        <ul class="list-group">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Students Synced
+                                                <span class="badge bg-primary rounded-pill">{{ students_synced|default('0') }}</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                Attendance Records Synced
+                                                <span class="badge bg-primary rounded-pill">{{ attendance_synced|default('0') }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

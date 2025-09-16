@@ -1,10 +1,463 @@
-<!doctype html>
-<title>Register Student</title>
-<h2>Register Student</h2>
-<form method="post" action="{{ url_for('admin.admin_register') }}" enctype="multipart/form-data">
-  <label>Name: <input name="name" required></label><br>
-  <label>Roll: <input name="roll" required></label><br>
-  <label>Face Image: <input type="file" name="image" accept="image/*" required></label><br>
-  <input type="submit" value="Register">
-</form>
-<p><a href="{{ url_for('admin.admin_dashboard') }}">Back</a></p>
+{% extends "base.html" %}
+
+{% block title %}Register Student{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center py-3">
+                    <h4 class="m-0 fw-bold"><i class="fas fa-user-plus me-2"></i>Register New Student</h4>
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+                </div>
+                
+                <div class="card-body p-4 p-lg-5">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden">
+                                <div class="card-header bg-light py-3">
+                                    <h5 class="m-0 fw-bold text-primary"><i class="fas fa-user-edit me-2"></i>Student Information</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <form method="post" action="{{ url_for('attendance.register_student') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                                        <div class="row g-4">
+                                            <div class="col-md-12 mb-3">
+                                                <label for="name" class="form-label fw-bold">Full Name</label>
+                                                <div class="input-group input-group-lg shadow-sm">
+                                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-primary"></i></span>
+                                                    <input type="text" class="form-control bg-light border-start-0" id="name" name="name" placeholder="Enter student name" required>
+                                                </div>
+                                                <div class="invalid-feedback">
+                                                    Please provide the student's name.
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 mb-3">
+                                                <label for="roll" class="form-label fw-bold">Roll Number</label>
+                                                <div class="input-group input-group-lg shadow-sm">
+                                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-id-card text-primary"></i></span>
+                                                    <input type="text" class="form-control bg-light border-start-0" id="roll" name="roll" placeholder="Enter roll number" required>
+                                                </div>
+                                                <div class="invalid-feedback">
+                                                    Please provide a roll number.
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="class" class="form-label fw-bold">Class</label>
+                                                <div class="input-group input-group-lg shadow-sm">
+                                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-graduation-cap text-primary"></i></span>
+                                                    <input type="text" class="form-control bg-light border-start-0" id="class" name="class" placeholder="Enter class" required>
+                                                </div>
+                                                <div class="invalid-feedback">
+                                                    Please provide a class.
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="section" class="form-label fw-bold">Section</label>
+                                                <div class="input-group input-group-lg shadow-sm">
+                                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-users text-primary"></i></span>
+                                                    <input type="text" class="form-control bg-light border-start-0" id="section" name="section" placeholder="Enter section" required>
+                                                </div>
+                                                <div class="invalid-feedback">
+                                                    Please provide a section.
+                                                </div>
+                                            </div>
+                                        </div>
+                                
+                                        <div class="mt-4">
+                                            <div class="card border-0 bg-light rounded-4 shadow-sm">
+                                                <div class="card-body p-4">
+                                                    <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-camera me-2"></i>Face Image</h5>
+                                                    
+                                                    <div class="d-flex justify-content-center mb-4">
+                                                        <div class="btn-group" role="group" aria-label="Image source selection">
+                                                            <input type="radio" class="btn-check" name="imageSource" id="uploadOption" value="upload" checked autocomplete="off">
+                                                            <label class="btn btn-outline-primary rounded-start-pill px-4" for="uploadOption">
+                                                                <i class="fas fa-upload me-2"></i>Upload Image
+                                                            </label>
+                                                            
+                                                            <input type="radio" class="btn-check" name="imageSource" id="captureOption" value="capture" autocomplete="off">
+                                                            <label class="btn btn-outline-primary rounded-end-pill px-4" for="captureOption">
+                                                                <i class="fas fa-video me-2"></i>Capture Face
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div id="uploadSection" class="mb-3">
+                                                        <div class="input-group input-group-lg shadow-sm">
+                                                            <input type="file" class="form-control bg-white" id="image" name="image" accept="image/*" required>
+                                                            <label class="input-group-text bg-primary text-white" for="image"><i class="fas fa-camera"></i></label>
+                                                        </div>
+                                                        <div class="invalid-feedback">
+                                                            Please select an image file.
+                                                        </div>
+                                                        <div class="mt-2 d-flex align-items-center">
+                                                            <i class="fas fa-info-circle text-primary me-2"></i>
+                                                            <small class="text-muted">Upload a clear front-facing photo of the student's face.</small>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div id="captureSection" class="mb-3" style="display: none;">
+                                                        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                                                            <div class="card-body p-0">
+                                                                <div class="position-relative">
+                                                                    <video id="webcam" class="w-100" height="300" autoplay playsinline></video>
+                                                                    <div class="position-absolute top-0 end-0 m-2">
+                                                                        <span class="badge bg-danger px-3 py-2 rounded-pill">
+                                                                            <i class="fas fa-circle me-1 blink"></i> LIVE
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="p-3">
+                                                                    <div class="d-grid">
+                                                                        <button type="button" id="captureBtn" class="btn btn-primary btn-lg rounded-pill">
+                                                                            <i class="fas fa-camera me-2"></i>Capture Photo
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                <canvas id="canvas" style="display: none;"></canvas>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                            <button type="reset" class="btn btn-outline-secondary btn-lg px-4 me-md-2 rounded-pill">
+                                                <i class="fas fa-undo me-1"></i> Reset
+                                            </button>
+                                            <button type="submit" class="btn btn-primary btn-lg px-4 shadow rounded-pill">
+                                                <i class="fas fa-save me-1"></i> Register Student
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden">
+                                <div class="card-header bg-light py-3">
+                                    <h5 class="m-0 fw-bold text-primary"><i class="fas fa-image me-2"></i>Image Preview</h5>
+                                </div>
+                                <div class="card-body p-4 d-flex align-items-center justify-content-center">
+                                    <div id="imagePreview" class="text-center d-none">
+                                        <div class="position-relative">
+                                            <div class="avatar-preview-container bg-light rounded-4 shadow p-3 mb-3">
+                                                <img id="previewImg" src="#" alt="Preview" class="img-fluid rounded-3 preview-image">
+                                            </div>
+                                            <div class="preview-badge bg-success text-white px-3 py-2 rounded-pill shadow">
+                                                <i class="fas fa-check-circle me-1"></i> Preview
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="noImagePlaceholder" class="text-center">
+                                        <div class="bg-light rounded-4 p-4 mb-3 d-flex flex-column align-items-center justify-content-center" style="height: 300px; width: 300px;">
+                                            <i class="fas fa-user-circle text-primary mb-3" style="font-size: 5rem;"></i>
+                                            <p class="text-muted">Student photo will appear here</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function () {
+        'use strict'
+        
+        // Fetch all forms we want to apply validation to
+        var forms = document.querySelectorAll('.needs-validation')
+        
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+    
+    // Global variables for webcam
+    let stream = null;
+    let capturedImage = null;
+    const webcamElement = document.getElementById('webcam');
+    const canvasElement = document.getElementById('canvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const uploadSection = document.getElementById('uploadSection');
+    const captureSection = document.getElementById('captureSection');
+    const uploadOption = document.getElementById('uploadOption');
+    const captureOption = document.getElementById('captureOption');
+    const imageInput = document.getElementById('image');
+    
+    // Toggle between upload and capture sections
+    uploadOption.addEventListener('change', function() {
+        if (this.checked) {
+            uploadSection.style.display = 'block';
+            captureSection.style.display = 'none';
+            stopWebcam();
+            imageInput.required = true;
+        }
+    });
+    
+    captureOption.addEventListener('change', function() {
+        if (this.checked) {
+            uploadSection.style.display = 'none';
+            captureSection.style.display = 'block';
+            startWebcam();
+            imageInput.required = false;
+        }
+    });
+    
+    // Start webcam
+    function startWebcam() {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            // Add explicit constraints for better compatibility
+            const constraints = {
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: "user"
+                }
+            };
+            
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(function(mediaStream) {
+                    stream = mediaStream;
+                    webcamElement.srcObject = mediaStream;
+                    webcamElement.play();
+                    console.log('Webcam started successfully');
+                })
+                .catch(function(error) {
+                    console.error('Error accessing webcam:', error);
+                    alert('Could not access webcam. Please ensure you have granted camera permissions or use the upload option instead.');
+                    uploadOption.checked = true;
+                    uploadSection.style.display = 'block';
+                    captureSection.style.display = 'none';
+                });
+        } else {
+            console.error('Browser does not support getUserMedia API');
+            alert('Your browser does not support webcam access. Please use the upload option instead.');
+            uploadOption.checked = true;
+            uploadSection.style.display = 'block';
+            captureSection.style.display = 'none';
+        }
+    }
+    
+    // Stop webcam
+    function stopWebcam() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    }
+    
+    // Capture photo from webcam
+    captureBtn.addEventListener('click', function() {
+        const context = canvasElement.getContext('2d');
+        canvasElement.width = webcamElement.videoWidth;
+        canvasElement.height = webcamElement.videoHeight;
+        context.drawImage(webcamElement, 0, 0, canvasElement.width, canvasElement.height);
+        
+        // Convert canvas to blob
+        canvasElement.toBlob(function(blob) {
+            capturedImage = blob;
+            
+            // Create a preview
+            const previewDiv = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            const noImagePlaceholder = document.getElementById('noImagePlaceholder');
+            
+            previewImg.src = URL.createObjectURL(blob);
+            previewDiv.classList.remove('d-none');
+            noImagePlaceholder.classList.add('d-none');
+            
+            // Add animation effect using standard Animate.css classes
+            previewImg.classList.add('animate__animated', 'animate__fadeIn');
+            setTimeout(() => {
+                previewImg.classList.remove('animate__animated', 'animate__fadeIn');
+            }, 1000);
+            
+            // Change button text to indicate success
+            captureBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Photo Captured';
+            captureBtn.classList.remove('btn-primary');
+            captureBtn.classList.add('btn-success');
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                captureBtn.innerHTML = '<i class="fas fa-camera me-2"></i>Capture Again';
+                captureBtn.classList.remove('btn-success');
+                captureBtn.classList.add('btn-primary');
+            }, 2000);
+        }, 'image/jpeg', 0.95);
+    });
+    
+    // Handle form submission with captured image
+    document.querySelector('form').addEventListener('submit', function(event) {
+        if (captureOption.checked && capturedImage) {
+            event.preventDefault();
+            
+            // Create a FormData object
+            const formData = new FormData(this);
+            
+            // Remove the file input since we're using the captured image
+            formData.delete('image');
+            
+            // Convert canvas to base64 and add to form data
+            const dataURL = canvasElement.toDataURL('image/jpeg', 0.95);
+            formData.append('capturedImage', dataURL);
+            
+            // Submit the form with the captured image
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    return response.text();
+                }
+            }).then(html => {
+                if (html) {
+                    document.open();
+                    document.write(html);
+                    document.close();
+                }
+            }).catch(error => {
+                console.error('Error submitting form:', error);
+            });
+        }
+    });
+    
+    // Preview image before upload (for file input)
+    document.getElementById('image').addEventListener('change', function(e) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Show image preview
+            const previewDiv = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            const noImagePlaceholder = document.getElementById('noImagePlaceholder');
+            
+            previewImg.src = e.target.result;
+            previewDiv.classList.remove('d-none');
+            noImagePlaceholder.classList.add('d-none');
+            
+            // Add animation effect using standard Animate.css classes
+            previewImg.classList.add('animate__animated', 'animate__fadeIn');
+            setTimeout(() => {
+                previewImg.classList.remove('animate__animated', 'animate__fadeIn');
+            }, 1000);
+        };
+        
+        if (this.files[0]) {
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+    
+    // Clean up webcam when page is unloaded
+    window.addEventListener('beforeunload', stopWebcam);
+    
+    // Reset preview when form is reset
+    document.querySelector('button[type="reset"]').addEventListener('click', function() {
+        const previewDiv = document.getElementById('imagePreview');
+        const noImagePlaceholder = document.getElementById('noImagePlaceholder');
+        
+        previewDiv.classList.add('d-none');
+        noImagePlaceholder.classList.remove('d-none');
+    });
+    
+    // Add custom styles for the image preview
+    document.head.insertAdjacentHTML('beforeend', `
+        <style>
+            .avatar-preview-container {
+                width: 300px;
+                height: 300px;
+                overflow: hidden;
+                position: relative;
+                transition: all 0.3s ease;
+            }
+            
+            .preview-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+            
+            .avatar-preview-container:hover .preview-image {
+                transform: scale(1.05);
+            }
+            
+            .preview-badge {
+                position: absolute;
+                bottom: -10px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 10;
+            }
+            
+            /* Animation classes */
+            .animate__animated {
+                animation-duration: 1s;
+                animation-fill-mode: both;
+            }
+            
+            /* Using Animate.css library for animations */
+            
+            /* Custom gradient for header */
+            .bg-gradient-primary {
+                background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            }
+            
+            /* Blinking recording indicator */
+            .blink {
+                animation: blink 1.5s infinite;
+                font-size: 0.7rem;
+            }
+            
+            @keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 0.3; }
+                100% { opacity: 1; }
+            }
+            
+            /* Card hover effects */
+            .card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+            }
+        </style>
+    `);
+</script>
+{% endblock %}

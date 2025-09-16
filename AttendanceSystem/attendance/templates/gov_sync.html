@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Sync Status{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Synchronization Status</h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="refreshBtn">
+            <i class="fas fa-sync fa-sm text-white-50"></i> Refresh Status
+        </a>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Last Sync Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Last Synchronization</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ last_sync }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Synced Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Students Synced</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ students_synced }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Records Synced Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Attendance Records Synced</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ attendance_synced }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Sync Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Sync</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ unsynced_students + unsynced_attendance }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Sync Details Card -->
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Synchronization Details</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="syncTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Synced</th>
+                                    <th>Pending</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Students</td>
+                                    <td>{{ students_synced }}</td>
+                                    <td>{{ unsynced_students }}</td>
+                                    <td>{{ students_synced + unsynced_students }}</td>
+                                    <td>
+                                        {% if unsynced_students > 0 %}
+                                            <span class="badge badge-warning">Pending</span>
+                                        {% else %}
+                                            <span class="badge badge-success">Complete</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Attendance Records</td>
+                                    <td>{{ attendance_synced }}</td>
+                                    <td>{{ unsynced_attendance }}</td>
+                                    <td>{{ attendance_synced + unsynced_attendance }}</td>
+                                    <td>
+                                        {% if unsynced_attendance > 0 %}
+                                            <span class="badge badge-warning">Pending</span>
+                                        {% else %}
+                                            <span class="badge badge-success">Complete</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Synchronization Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('gov.export_data') }}" class="btn btn-primary btn-block py-3">
+                                <i class="fas fa-file-export me-2"></i> Export Data
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <button id="syncNowBtn" class="btn btn-success btn-block py-3">
+                                <i class="fas fa-sync me-2"></i> Sync Now
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <button id="clearSyncBtn" class="btn btn-danger btn-block py-3">
+                                <i class="fas fa-trash me-2"></i> Clear Sync History
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Sync Actions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.reload();
+        });
+
+        // Sync Now button
+        document.getElementById('syncNowBtn').addEventListener('click', function() {
+            // In a real implementation, this would make an AJAX call to trigger sync
+            alert('Sync process initiated. This would trigger the synchronization process in a real implementation.');
+        });
+
+        // Clear Sync History button
+        document.getElementById('clearSyncBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear the sync history? This will not delete any data.')) {
+                // In a real implementation, this would make an AJAX call to clear history
+                alert('Sync history cleared. This would clear the sync logs in a real implementation.');
+            }
+        });
+    });
+</script>
+{% endblock %}
